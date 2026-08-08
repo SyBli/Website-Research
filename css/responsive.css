@@ -1,0 +1,60 @@
+/* ==========================================================================
+   Responsive — Desktop (sidebar) → Tablet → Mobile (hamburger)
+   ========================================================================== */
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1080px) {
+  :root { --sidebar-w: 220px; }
+  .dash-columns { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .view-container { padding: 22px 20px 50px; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 860px) {
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    height: 100dvh;
+    transform: translateX(-100%);
+    transition: transform .25s var(--ease);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.is-open { transform: translateX(0); }
+
+  .sidebar-scrim {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,24,30,.45);
+    z-index: 39;
+  }
+  .sidebar-scrim.is-visible { display: block; }
+
+  .hamburger { display: inline-flex; }
+
+  .topbar { padding: 0 14px; gap: 10px; }
+  .topbar-search { max-width: none; }
+  #btnAddResearchTop span { display: none; }
+  #btnAddResearchTop { padding: 10px 12px; }
+
+  .view-container { padding: 18px 14px 46px; }
+
+  .research-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+
+  .progress-overview { flex-direction: column; align-items: stretch; }
+  .progress-overview-bars { min-width: 0; }
+
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .view-head { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stat-value { font-size: 22px; }
+  .modal-body { padding: 16px; }
+  .modal-head { padding: 16px; }
+  .view-head h1 { font-size: 20px; }
+}

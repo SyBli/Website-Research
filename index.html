@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyResearch — Ruang Kerja Karya Ilmiah</title>
+<meta name="description" content="Kelola penelitian, karya ilmiah, dan mini riset sekolahmu dalam satu tempat — tanpa login, tanpa server.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/modal.css">
+<link rel="stylesheet" href="css/darkmode.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M15 4v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 12h8M7 15.5h8M7 8.5h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <div class="brand-text">
+        <strong>StudyResearch</strong>
+        <span>Ruang kerja riset</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Navigasi utama">
+      <button class="nav-item is-active" data-nav="dashboard" id="navDashboard">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-nav="all" id="navAll">
+        <i data-lucide="folder-kanban"></i><span>Semua Penelitian</span>
+      </button>
+      <button class="nav-item" data-nav="stats" id="navStats">
+        <i data-lucide="bar-chart-3"></i><span>Statistik</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="themeToggleSidebar">
+        <i data-lucide="moon"></i><span>Mode Gelap</span>
+      </button>
+      <p class="sidebar-hint">Data tersimpan otomatis di perangkatmu. Tidak ada akun, tidak ada server.</p>
+    </div>
+  </aside>
+
+  <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="app-main">
+
+    <header class="topbar">
+      <button class="icon-btn hamburger" id="hamburgerBtn" aria-label="Buka menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+
+      <div class="topbar-search">
+        <i data-lucide="search"></i>
+        <input type="search" id="globalSearch" placeholder="Cari judul, mapel, kategori, atau pembimbing…" autocomplete="off">
+      </div>
+
+      <button class="icon-btn" id="themeToggleTop" aria-label="Ganti tema">
+        <i data-lucide="moon"></i>
+      </button>
+
+      <button class="btn btn-primary" id="btnAddResearchTop">
+        <i data-lucide="plus"></i><span>Tambah Penelitian</span>
+      </button>
+    </header>
+
+    <main class="view-container" id="viewContainer">
+
+      <!-- ---------- DASHBOARD VIEW ---------- -->
+      <section class="view" id="view-dashboard">
+        <div class="view-head">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="view-sub">Ringkasan seluruh penelitianmu, sekali lihat.</p>
+          </div>
+        </div>
+
+        <div class="stat-grid" id="statGrid"><!-- injected --></div>
+
+        <div class="dash-columns">
+          <div class="panel chart-panel">
+            <div class="panel-head">
+              <h2>Status Penelitian</h2>
+            </div>
+            <div class="chart-wrap"><canvas id="chartStatus"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Deadline Terdekat</h2>
+            </div>
+            <ul class="deadline-list" id="deadlineList"><!-- injected --></ul>
+          </div>
+        </div>
+
+        <div class="view-head list-head">
+          <h2>Semua Penelitian</h2>
+          <span class="muted" id="dashCardCount"></span>
+        </div>
+        <div class="research-grid" id="dashResearchGrid"><!-- injected --></div>
+        <div class="empty-state" id="emptyStateDash" hidden>
+          <i data-lucide="folder-open"></i>
+          <h3>Belum ada penelitian</h3>
+          <p>Mulai riset pertamamu — buat project dan mulai isi ide, referensi, sampai timeline.</p>
+          <button class="btn btn-primary" id="emptyAddBtn"><i data-lucide="plus"></i><span>Tambah Penelitian</span></button>
+        </div>
+      </section>
+
+      <!-- ---------- ALL RESEARCH VIEW ---------- -->
+      <section class="view" id="view-all" hidden>
+        <div class="view-head">
+          <div>
+            <h1>Semua Penelitian</h1>
+            <p class="view-sub">Kelola seluruh project penelitianmu.</p>
+          </div>
+          <div class="view-actions">
+            <select id="filterStatus" class="select-input">
+              <option value="">Semua Status</option>
+              <option value="Belum Mulai">Belum Mulai</option>
+              <option value="Proses">Proses</option>
+              <option value="Revisi">Revisi</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+        </div>
+        <div class="research-grid" id="allResearchGrid"><!-- injected --></div>
+        <div class="empty-state" id="emptyStateAll" hidden>
+          <i data-lucide="search-x"></i>
+          <h3>Tidak ditemukan</h3>
+          <p>Coba kata kunci atau filter lain.</p>
+        </div>
+      </section>
+
+      <!-- ---------- STATS VIEW ---------- -->
+      <section class="view" id="view-stats" hidden>
+        <div class="view-head">
+          <div>
+            <h1>Statistik</h1>
+            <p class="view-sub">Gambaran menyeluruh progres risetmu.</p>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="panel">
+            <div class="panel-head"><h2>Berdasarkan Status</h2></div>
+            <div class="chart-wrap"><canvas id="chartStatusBig"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Berdasarkan Kategori</h2></div>
+            <div class="chart-wrap"><canvas id="chartCategory"></canvas></div>
+          </div>
+          <div class="panel panel-wide">
+            <div class="panel-head"><h2>Progress per Penelitian</h2></div>
+            <div class="chart-wrap chart-wrap-tall"><canvas id="chartProgress"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- DETAIL / WORKSPACE VIEW ---------- -->
+      <section class="view" id="view-detail" hidden>
+        <button class="back-link" id="backToList"><i data-lucide="arrow-left"></i><span>Kembali</span></button>
+
+        <div class="detail-head" id="detailHead"><!-- injected --></div>
+
+        <div class="progress-overview" id="progressOverview"><!-- injected --></div>
+
+        <div class="tabs" id="detailTabs">
+          <button class="tab-btn is-active" data-tab="info"><i data-lucide="info"></i><span>Informasi</span></button>
+          <button class="tab-btn" data-tab="idea"><i data-lucide="lightbulb"></i><span>Ide Penelitian</span></button>
+          <button class="tab-btn" data-tab="ref"><i data-lucide="book-marked"></i><span>Referensi</span></button>
+          <button class="tab-btn" data-tab="checklist"><i data-lucide="list-checks"></i><span>Checklist BAB</span></button>
+          <button class="tab-btn" data-tab="timeline"><i data-lucide="calendar-clock"></i><span>Timeline</span></button>
+          <button class="tab-btn" data-tab="notes"><i data-lucide="sticky-note"></i><span>Catatan</span></button>
+          <button class="tab-btn" data-tab="files"><i data-lucide="paperclip"></i><span>Lampiran</span></button>
+        </div>
+
+        <div class="tab-panels">
+          <div class="tab-panel is-active" id="panel-info"></div>
+          <div class="tab-panel" id="panel-idea"></div>
+          <div class="tab-panel" id="panel-ref"></div>
+          <div class="tab-panel" id="panel-checklist"></div>
+          <div class="tab-panel" id="panel-timeline"></div>
+          <div class="tab-panel" id="panel-notes"></div>
+          <div class="tab-panel" id="panel-files"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODAL: Tambah / Edit Penelitian ============ -->
+<div class="modal-overlay" id="modalResearch" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalResearchTitle">
+    <div class="modal-head">
+      <h2 id="modalResearchTitle">Tambah Penelitian</h2>
+      <button class="icon-btn" id="closeModalResearch" aria-label="Tutup"><i data-lucide="x"></i></button>
+    </div>
+    <form id="formResearch" class="modal-body">
+      <input type="hidden" id="rId">
+      <div class="form-grid">
+        <div class="form-field form-field-full">
+          <label for="rTitle">Judul Penelitian</label>
+          <input type="text" id="rTitle" required placeholder="Contoh: Pengaruh Gadget terhadap Prestasi Belajar">
+        </div>
+        <div class="form-field">
+          <label for="rCategory">Kategori</label>
+          <input type="text" id="rCategory" required placeholder="Contoh: Sosial, IoT, Lingkungan" list="categoryList">
+          <datalist id="categoryList"></datalist>
+        </div>
+        <div class="form-field">
+          <label for="rSubject">Mata Pelajaran</label>
+          <input type="text" id="rSubject" required placeholder="Contoh: Sosiologi">
+        </div>
+        <div class="form-field">
+          <label for="rAuthor">Penulis</label>
+          <input type="text" id="rAuthor" required placeholder="Nama kamu">
+        </div>
+        <div class="form-field">
+          <label for="rAdvisor">Pembimbing</label>
+          <input type="text" id="rAdvisor" placeholder="Nama guru pembimbing">
+        </div>
+        <div class="form-field">
+          <label for="rStart">Tanggal Mulai</label>
+          <input type="date" id="rStart" required>
+        </div>
+        <div class="form-field">
+          <label for="rDeadline">Deadline</label>
+          <input type="date" id="rDeadline" required>
+        </div>
+        <div class="form-field">
+          <label for="rStatus">Status</label>
+          <select id="rStatus">
+            <option>Belum Mulai</option>
+            <option>Proses</option>
+            <option>Revisi</option>
+            <option>Selesai</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModalResearch">Batal</button>
+        <button type="submit" class="btn btn-primary" id="submitModalResearch">Simpan Penelitian</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: Referensi ============ -->
+<div class="modal-overlay" id="modalRef" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalRefTitle">
+    <div class="modal-head">
+      <h2 id="modalRefTitle">Tambah Referensi</h2>
+      <button class="icon-btn" id="closeModalRef" aria-label="Tutup"><i data-lucide="x"></i></button>
+    </div>
+    <form id="formRef" class="modal-body">
+      <input type="hidden" id="refId">
+      <div class="form-grid">
+        <div class="form-field form-field-full">
+          <label for="refTitle">Judul Referensi</label>
+          <input type="text" id="refTitle" required>
+        </div>
+        <div class="form-field">
+          <label for="refAuthor">Penulis</label>
+          <input type="text" id="refAuthor" required>
+        </div>
+        <div class="form-field">
+          <label for="refYear">Tahun</label>
+          <input type="number" id="refYear" min="1900" max="2100" required>
+        </div>
+        <div class="form-field">
+          <label for="refType">Jenis</label>
+          <select id="refType">
+            <option>Buku</option>
+            <option>Jurnal</option>
+            <option>Website</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="refLink">Link (opsional)</label>
+          <input type="url" id="refLink" placeholder="https://…">
+        </div>
+        <div class="form-field form-field-full">
+          <label for="refNote">Catatan (opsional)</label>
+          <textarea id="refNote" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModalRef">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Referensi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: Timeline ============ -->
+<div class="modal-overlay" id="modalTimeline" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="modalTimelineTitle">
+    <div class="modal-head">
+      <h2 id="modalTimelineTitle">Tambah Target Timeline</h2>
+      <button class="icon-btn" id="closeModalTimeline" aria-label="Tutup"><i data-lucide="x"></i></button>
+    </div>
+    <form id="formTimeline" class="modal-body">
+      <input type="hidden" id="tId">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="tDate">Tanggal</label>
+          <input type="date" id="tDate" required>
+        </div>
+        <div class="form-field">
+          <label for="tTitle">Judul Target</label>
+          <input type="text" id="tTitle" required>
+        </div>
+        <div class="form-field form-field-full">
+          <label for="tDesc">Deskripsi (opsional)</label>
+          <textarea id="tDesc" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModalTimeline">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Target</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: Konfirmasi Hapus ============ -->
+<div class="modal-overlay" id="modalConfirm" hidden>
+  <div class="modal modal-xs" role="dialog" aria-modal="true" aria-labelledby="modalConfirmTitle">
+    <div class="modal-body modal-confirm-body">
+      <div class="confirm-icon"><i data-lucide="alert-triangle"></i></div>
+      <h2 id="modalConfirmTitle">Hapus data ini?</h2>
+      <p id="modalConfirmDesc">Tindakan ini tidak bisa dibatalkan.</p>
+      <div class="modal-actions modal-actions-center">
+        <button type="button" class="btn btn-ghost" id="cancelModalConfirm">Batal</button>
+        <button type="button" class="btn btn-danger" id="confirmModalConfirm">Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/search.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/research.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
